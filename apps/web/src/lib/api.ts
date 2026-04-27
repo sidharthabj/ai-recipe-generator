@@ -23,7 +23,7 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
 }
 
-const USE_MOCK = false; // set to true to use mock data instead of real API
+const USE_MOCK = true; // set to true to use mock data instead of real API
 
 const MOCK_RECIPE: Recipe = {
   id: 1,
