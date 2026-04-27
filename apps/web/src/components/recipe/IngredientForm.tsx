@@ -53,6 +53,10 @@ export default function IngredientForm({
     onSubmit(filled);
   }
 
+  const lastIngredientEmpty =
+    ingredients[ingredients.length - 1].name.trim() === "";
+  const noIngredientsFilled = ingredients.every((i) => i.name.trim() === "");
+
   return (
     <div className="space-y-4">
       <div>
@@ -65,11 +69,11 @@ export default function IngredientForm({
         </p>
       </div>
 
-      <div className="flex gap-4 px-1">
+      <div className="flex items-center pl-3 pr-3">
         <span className="text-[11px] font-medium uppercase text-muted-foreground flex-1">
           Ingredient
         </span>
-        <span className="text-[11px] font-medium uppercase text-muted-foreground w-[110px]">
+        <span className="text-[11px] font-medium uppercase text-muted-foreground w-[110px] shrink-0">
           Quantity
         </span>
         <span className="w-8" />
@@ -111,11 +115,20 @@ export default function IngredientForm({
         ))}
       </Card>
 
-      <Button variant="ghost" onClick={addIngredient} className="w-full">
+      <Button
+        variant="ghost"
+        onClick={addIngredient}
+        disabled={lastIngredientEmpty}
+        className="w-full"
+      >
         + Add Ingredient
       </Button>
 
-      <Button onClick={handleSubmit} disabled={isLoading} className="w-full">
+      <Button
+        onClick={handleSubmit}
+        disabled={isLoading || noIngredientsFilled}
+        className="w-full"
+      >
         {isLoading ? "Generating your recipe..." : "Generate Recipe"}
       </Button>
     </div>
