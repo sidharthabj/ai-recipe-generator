@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import IngredientForm from "@/components/recipe/IngredientForm";
 import RecipeDetail from "@/components/recipe/RecipeDetail";
+import MyRecipesPage from "@/pages/MyRecipesPage";
 import { generateRecipe, type Recipe } from "@/lib/api";
 
 type Tab = "generate" | "saved";
@@ -64,6 +65,16 @@ function App() {
     setSavedRecipes((prev) => [...prev, recipe]);
   }
 
+  function handleDelete(id: number) {
+    setSavedRecipes((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  function handleSelectSaved(recipe: Recipe) {
+    setCurrentRecipe(recipe);
+    setView("recipe");
+    setActiveTab("generate");
+  }
+
   const isSaved = currentRecipe
     ? savedRecipes.some((r) => r.id === currentRecipe.id)
     : false;
@@ -93,7 +104,11 @@ function App() {
             {error && <p className="text-sm text-destructive mt-4">{error}</p>}
           </>
         ) : (
-          <p className="text-muted-foreground">My Recipes tab coming soon</p>
+          <MyRecipesPage
+            savedRecipes={savedRecipes}
+            onDelete={handleDelete}
+            onSelect={handleSelectSaved}
+          />
         )}
       </main>
     </div>
