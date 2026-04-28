@@ -4,12 +4,14 @@ import { type Recipe } from "@/lib/api";
 
 interface RecipeCardProps {
   recipe: Recipe;
-  onDelete: (id: number) => void;
+  savedId: number;
+  onDelete: (savedId: number) => void;
   onClick: (recipe: Recipe) => void;
 }
 
 export default function RecipeCard({
   recipe,
+  savedId,
   onDelete,
   onClick,
 }: RecipeCardProps) {
@@ -29,7 +31,7 @@ export default function RecipeCard({
             size="icon"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete(recipe.id);
+              onDelete(savedId);
             }}
             className="shrink-0 hover:text-destructive hover:bg-destructive/10"
           >

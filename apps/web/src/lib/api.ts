@@ -23,7 +23,14 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
 }
 
-const USE_MOCK = true; // set to true to use mock data instead of real API
+export interface SavedRecipe {
+  id: number;
+  recipeId: number;
+  savedAt: string;
+  recipe: Recipe;
+}
+
+const USE_MOCK = false; // set to true to use mock data instead of real API
 
 const MOCK_RECIPE: Recipe = {
   id: 1,
@@ -56,4 +63,27 @@ export async function generateRecipe(
   });
   if (!res.ok) throw new Error("Failed to generate recipe");
   return res.json();
+}
+
+export async function fetchSavedRecipes(): Promise<SavedRecipe[]> {
+  const res = await fetch(`${API_BASE}/saved`);
+  if (!res.ok) throw new Error("Failed to fetch saved recipes");
+  return res.json();
+}
+
+export async function saveRecipe(recipeId: number): Promise<SavedRecipe> {
+  const res = await fetch(`${API_BASE}/saved`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recipeId }),
+  });
+  if (!res.ok) throw new Error("Failed to save recipe");
+  return res.json();
+}
+
+export async function deleteSavedRecipe(savedId: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/saved/${savedId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete saved recipe");
 }

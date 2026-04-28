@@ -1,9 +1,9 @@
 import RecipeCard from "@/components/recipe/RecipeCard";
-import { type Recipe } from "@/lib/api";
+import { type Recipe, type SavedRecipe } from "@/lib/api";
 
 interface MyRecipesPageProps {
-  savedRecipes: Recipe[];
-  onDelete: (id: number) => void;
+  savedRecipes: SavedRecipe[];
+  onDelete: (savedId: number) => void;
   onSelect: (recipe: Recipe) => void;
 }
 
@@ -27,10 +27,11 @@ export default function MyRecipesPage({
     <div className="space-y-4">
       <h1 className="text-xl font-semibold tracking-tight">My Recipes</h1>
       <div className="grid grid-cols-1 gap-3">
-        {savedRecipes.map((recipe) => (
+        {savedRecipes.map((saved) => (
           <RecipeCard
-            key={recipe.id}
-            recipe={recipe}
+            key={saved.id}
+            recipe={saved.recipe}
+            savedId={saved.id}
             onDelete={onDelete}
             onClick={onSelect}
           />

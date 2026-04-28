@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import IngredientForm from "@/components/recipe/IngredientForm";
 import RecipeDetail from "@/components/recipe/RecipeDetail";
 import MyRecipesPage from "@/pages/MyRecipesPage";
-import { generateRecipe, type Recipe } from "@/lib/api";
+import { LoadingState } from "@/pages/GeneratePage";
+import {
+  generateRecipe,
+  fetchSavedRecipes,
+  saveRecipe,
+  deleteSavedRecipe,
+  type Recipe,
+  type SavedRecipe,
+} from "@/lib/api";
 
 type Tab = "generate" | "saved";
 type View = "input" | "recipe";
@@ -21,8 +29,14 @@ function App() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<Recipe | null>(null);
   const [lastIngredients, setLastIngredients] = useState<Ingredient[]>([]);
-  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+  const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSavedRecipes()
+      .then(setSavedRecipes)
+      .catch((err) => console.error("Failed to load saved recipes:", err));
+  }, []);
 
   async function handleGenerate(ingredients: Ingredient[]) {
     setIsLoading(true);
@@ -59,14 +73,24 @@ function App() {
     setCurrentRecipe(null);
   }
 
-  function handleSave(recipe: Recipe) {
-    const alreadySaved = savedRecipes.some((r) => r.id === recipe.id);
+  async function handleSave(recipe: Recipe) {
+    const alreadySaved = savedRecipes.some((r) => r.recipeId === recipe.id);
     if (alreadySaved) return;
-    setSavedRecipes((prev) => [...prev, recipe]);
+    try {
+      const saved = await saveRecipe(recipe.id);
+      setSavedRecipes((prev) => [...prev, saved]);
+    } catch (err) {
+      console.error("Failed to save recipe:", err);
+    }
   }
 
-  function handleDelete(id: number) {
-    setSavedRecipes((prev) => prev.filter((r) => r.id !== id));
+  async function handleDelete(savedId: number) {
+    try {
+      await deleteSavedRecipe(savedId);
+      setSavedRecipes((prev) => prev.filter((r) => r.id !== savedId));
+    } catch (err) {
+      console.error("Failed to delete recipe:", err);
+    }
   }
 
   function handleSelectSaved(recipe: Recipe) {
@@ -76,8 +100,41 @@ function App() {
   }
 
   const isSaved = currentRecipe
-    ? savedRecipes.some((r) => r.id === currentRecipe.id)
+    ? savedRecipes.some((r) => r.recipeId === currentRecipe.id)
     : false;
+
+  function renderGenerate() {
+    if (isLoading) return <LoadingState />;
+    if (isRegenerating && currentRecipe)
+      return (
+        <>
+          <LoadingState isRegenerating />
+          {error && <p className="text-sm text-destructive mt-4">{error}</p>}
+        </>
+      );
+    if (view === "input")
+      return (
+        <>
+          <IngredientForm onSubmit={handleGenerate} isLoading={isLoading} />
+          {error && <p className="text-sm text-destructive mt-4">{error}</p>}
+        </>
+      );
+    if (view === "recipe" && currentRecipe)
+      return (
+        <>
+          <RecipeDetail
+            recipe={currentRecipe}
+            onBack={handleBack}
+            onRegenerate={handleRegenerate}
+            onSave={handleSave}
+            isSaved={isSaved}
+            isRegenerating={isRegenerating}
+          />
+          {error && <p className="text-sm text-destructive mt-4">{error}</p>}
+        </>
+      );
+    return null;
+  }
 
   return (
     <div className="min-h-screen">
@@ -88,21 +145,7 @@ function App() {
       />
       <main className="max-w-[672px] mx-auto px-6 py-8 pb-16">
         {activeTab === "generate" ? (
-          <>
-            {view === "input" ? (
-              <IngredientForm onSubmit={handleGenerate} isLoading={isLoading} />
-            ) : currentRecipe ? (
-              <RecipeDetail
-                recipe={currentRecipe}
-                onBack={handleBack}
-                onRegenerate={handleRegenerate}
-                onSave={handleSave}
-                isSaved={isSaved}
-                isRegenerating={isRegenerating}
-              />
-            ) : null}
-            {error && <p className="text-sm text-destructive mt-4">{error}</p>}
-          </>
+          renderGenerate()
         ) : (
           <MyRecipesPage
             savedRecipes={savedRecipes}

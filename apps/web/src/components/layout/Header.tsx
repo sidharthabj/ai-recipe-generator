@@ -16,7 +16,7 @@ export default function Header({
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
       <div className="max-w-[672px] mx-auto px-6 h-14 flex items-center justify-between">
-        <span className="text-sm font-semibold">Ramsey</span>
+        <span className="text-base font-bold">Ramsey</span>
         <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as Tab)}>
           <TabsList>
             <TabsTrigger value="generate">Generate</TabsTrigger>
