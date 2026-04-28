@@ -20,14 +20,19 @@ A pantry-first web app that generates recipes based on ingredients you already h
 ## Getting Started
 
 Install dependencies:
-```bash
-yarn install
-```
+
+    yarn install
+
+Set up environment variables — create a file at apps/api/.env with the following:
+
+    GEMINI_API_KEY=your_key_here
+    PORT=3001
+
+To get a free Gemini API key, go to https://aistudio.google.com, sign in with a Google account, and click Get API key.
 
 Run the dev server:
-```bash
-yarn dev
-```
+
+    yarn dev
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:3001
