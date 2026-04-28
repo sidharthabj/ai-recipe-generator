@@ -74,13 +74,21 @@ function App() {
   }
 
   async function handleSave(recipe: Recipe) {
-    const alreadySaved = savedRecipes.some((r) => r.recipeId === recipe.id);
-    if (alreadySaved) return;
-    try {
-      const saved = await saveRecipe(recipe.id);
-      setSavedRecipes((prev) => [...prev, saved]);
-    } catch (err) {
-      console.error("Failed to save recipe:", err);
+    const existing = savedRecipes.find((r) => r.recipeId === recipe.id);
+    if (existing) {
+      try {
+        await deleteSavedRecipe(existing.id);
+        setSavedRecipes((prev) => prev.filter((r) => r.id !== existing.id));
+      } catch (err) {
+        console.error("Failed to unsave recipe:", err);
+      }
+    } else {
+      try {
+        const saved = await saveRecipe(recipe.id);
+        setSavedRecipes((prev) => [...prev, saved]);
+      } catch (err) {
+        console.error("Failed to save recipe:", err);
+      }
     }
   }
 
